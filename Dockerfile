@@ -12,3 +12,5 @@ RUN mkdir -p /opt/exampleapp
 COPY . /opt/exampleapp/
 # install the library dependencies for this application
 RUN pip3 install -r /opt/exampleapp/requirements.txt
+ENTRYPOINT ["python3"]
+CMD ["/opt/exampleapp/exampleapp.py"]
