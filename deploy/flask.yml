@@ -1,0 +1,17 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: flask
+  labels:
+    run: flask
+spec:
+  template:
+    metadata:
+      labels:
+         app: flask
+    spec:
+      containers:
+      - name: flask
+        image: quay.io/kubernetes-for-developers/flask:latest
+        ports:
+        - containerPort: 5000
