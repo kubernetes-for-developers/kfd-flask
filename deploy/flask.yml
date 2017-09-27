@@ -1,3 +1,29 @@
+---
+# EXPORT SERVICE INTERFACE
+kind: Service
+apiVersion: v1
+metadata:
+    name: flask-service
+spec:
+  type: NodePort
+  ports:
+  - port: 5000
+  selector:
+      app: flask
+---
+# CONFIGURATION FOR THE FLASK APP
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: flask-config
+data:
+  # debuging enabled or not
+  debug: "1"
+  feature.flags: |
+    greeting=hello
+    onoff=true
+    anumber=3
+---
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
@@ -15,3 +41,25 @@ spec:
         image: quay.io/kubernetes-for-developers/flask:latest
         ports:
         - containerPort: 5000
+        envFrom:
+        - configMapRef:
+           name: flask-config
+        volumeMounts:
+          - name: podinfo
+            mountPath: /podinfo
+            readOnly: true
+          - name: config
+            mountPath: /etc/flask-config
+      volumes:
+        - name: podinfo
+          downwardAPI:
+            items:
+              - path: "labels"
+                fieldRef:
+                  fieldPath: metadata.labels
+              - path: "annotations"
+                fieldRef:
+                  fieldPath: metadata.annotations
+        - name: config
+          configMap:
+            name: flask-config
