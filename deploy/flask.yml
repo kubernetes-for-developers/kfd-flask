@@ -20,10 +20,9 @@ data:
   # debuging enabled or not
   CONFIG_FILE: "/etc/flask-config/feature.flags"
   feature.flags: |
-    [unusual]
+    [features]
     greeting=hello
-    onoff=true
-    anumber=3
+    debug=true
 ---
 apiVersion: apps/v1beta1
 kind: Deployment
@@ -39,7 +38,7 @@ spec:
     spec:
       containers:
       - name: flask
-        image: quay.io/kubernetes-for-developers/flask:latest
+        image: quay.io/kubernetes-for-developers/flask:0.2.0
         ports:
         - containerPort: 5000
         envFrom:

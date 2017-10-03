@@ -7,9 +7,11 @@ from pathlib import Path
 from flask import Flask
 from flask import render_template
 
+# initialize the configuration parser with all the existing environment variables
 parser = SafeConfigParser(os.environ)
-config_file = Path(os.environ.get('CONFIG_FILE','/opt/feature.flags'))
-
+# default location of ./feature.flags is used if the environment variable isn’t set
+config_file = Path(os.environ.get('CONFIG_FILE','./feature.flags'))
+# verify file exists before attempting to read and extend the configuration
 if config_file.is_file():
     parser.read(os.environ.get('CONFIG_FILE'))
 
@@ -27,5 +29,5 @@ def hello(name=None):
             name=name)
 
 if __name__ == '__main__':
-    debug_enable = parser.getboolean('feaxtures','debug',fallback=False)
+    debug_enable = parser.getboolean('features','debug',fallback=False)
     app.run(debug=debug_enable,host='0.0.0.0')
