@@ -18,8 +18,9 @@ metadata:
   name: flask-config
 data:
   # debuging enabled or not
-  debug: "1"
+  CONFIG_FILE: "/etc/flask-config/feature.flags"
   feature.flags: |
+    [unusual]
     greeting=hello
     onoff=true
     anumber=3
@@ -45,21 +46,10 @@ spec:
         - configMapRef:
            name: flask-config
         volumeMounts:
-          - name: podinfo
-            mountPath: /podinfo
-            readOnly: true
           - name: config
             mountPath: /etc/flask-config
+            readOnly: true
       volumes:
-        - name: podinfo
-          downwardAPI:
-            items:
-              - path: "labels"
-                fieldRef:
-                  fieldPath: metadata.labels
-              - path: "annotations"
-                fieldRef:
-                  fieldPath: metadata.annotations
         - name: config
           configMap:
             name: flask-config
