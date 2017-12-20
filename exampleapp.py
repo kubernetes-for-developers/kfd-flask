@@ -30,6 +30,7 @@ def activeconfig():
         output += "SECTION: "+each_section+"\n"
         for (each_key, each_val) in parser.items(each_section):
             output += each_key+" : "+each_val+"\n"
+    return output
 
 @app.route('/hello')
 @app.route('/hello/<name>')
@@ -38,9 +39,9 @@ def hello(name=None):
                            greeting=parser.get('features', 'greeting', fallback="Howdy"),
                            name=name)
 
-@app.route('alive')
+@app.route('/alive')
 def alive():
-    return True
+    return "Yes"
 
 if __name__ == '__main__':
     debug_enable = parser.getboolean('features', 'debug', fallback=False)
