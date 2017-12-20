@@ -43,6 +43,13 @@ def hello(name=None):
 def alive():
     return "Yes"
 
+@app.route('/ready')
+def ready():
+    if redis_store.ping():
+        return "Yes"
+    else:
+        flask.abort(500)
+
 if __name__ == '__main__':
     debug_enable = parser.getboolean('features', 'debug', fallback=False)
     redis_host = parser.get('features', 'db', fallback="redis")
