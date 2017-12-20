@@ -23,6 +23,7 @@ data:
     [features]
     greeting=hello
     debug=true
+    db=redis-service
 ---
 apiVersion: apps/v1beta1
 kind: Deployment

@@ -1,0 +1,38 @@
+---
+# EXPORT SERVICE INTERFACE
+kind: Service
+apiVersion: v1
+metadata:
+    name: redis-service
+    labels:
+      app: redis
+      role: master
+      tier: backend
+spec:
+#  type: NodePort
+  ports:
+  - port: 6379
+    targetPort: 6379
+  selector:
+      app: redis
+      role: master
+      tier: backend
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: redis-master
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+         app: redis
+         role: master
+         tier: backend
+    spec:
+      containers:
+      - name: redis-master
+        image: redis:4
+        ports:
+        - containerPort: 6379
