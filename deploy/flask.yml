@@ -50,6 +50,18 @@ spec:
           - name: config
             mountPath: /etc/flask-config
             readOnly: true
+        livenessProbe:
+          httpGet:
+            path: /alive
+            port: 5000
+          initialDelaySeconds: 1
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
       volumes:
         - name: config
           configMap:
