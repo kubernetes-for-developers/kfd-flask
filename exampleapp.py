@@ -52,6 +52,6 @@ def ready():
 
 if __name__ == '__main__':
     debug_enable = parser.getboolean('features', 'debug', fallback=False)
-    redis_host = parser.get('features', 'db', fallback="redis")
+    redis_host = parser.get('features', 'db', fallback="localhost")
     redis_store = redis.StrictRedis(host=redis_host, port=6379, db=0)
     app.run(debug=debug_enable, host='0.0.0.0')
