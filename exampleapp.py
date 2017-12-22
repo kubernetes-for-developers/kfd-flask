@@ -7,6 +7,13 @@ from pathlib import Path
 from flask import Flask
 from flask import render_template
 import redis
+import signal
+import sys
+
+def sigterm_handler(_signo, _stack_frame):
+    sys.exit(0)
+
+signal.signal(signal.SIGTERM, sigterm_handler)
 
 # initialize the configuration parser with all the existing environment variables
 parser = SafeConfigParser(os.environ)
