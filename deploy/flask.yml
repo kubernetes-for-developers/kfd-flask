@@ -50,6 +50,8 @@ spec:
           - name: config
             mountPath: /etc/flask-config
             readOnly: true
+          - name: cache-volume
+            mountPath: /opt/cache
         livenessProbe:
           httpGet:
             path: /alive
@@ -66,6 +68,8 @@ spec:
         - name: config
           configMap:
             name: flask-config
+        - name: cache-volume
+          emptyDir: {}
       initContainers:
         - name: init-myservice
           image: busybox
