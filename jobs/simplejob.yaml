@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: helloworld
+spec:
+  template:
+    metadata:
+      name: helloworld
+    spec:
+      containers:
+      - name: simple
+        image: busybox
+        command: ["/bin/sh", "echo", "-c", "'hello world'"]
+      restartPolicy: Never

@@ -1,0 +1,15 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: helloworld
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: simple
+            image: busybox
+            command: ["/bin/sh", "-c", "echo", "'hello world'"]
+          restartPolicy: OnFailure
