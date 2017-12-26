@@ -23,6 +23,7 @@ data:
     [features]
     greeting=hello
     debug=true
+    db=redis-service
 ---
 apiVersion: apps/v1beta1
 kind: Deployment
@@ -38,7 +39,8 @@ spec:
     spec:
       containers:
       - name: flask
-        image: quay.io/kubernetes-for-developers/flask:0.2.0
+        image: quay.io/kubernetes-for-developers/flask:0.3.0
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
         envFrom:
@@ -48,7 +50,24 @@ spec:
           - name: config
             mountPath: /etc/flask-config
             readOnly: true
+        livenessProbe:
+          httpGet:
+            path: /alive
+            port: 5000
+          initialDelaySeconds: 1
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
       volumes:
         - name: config
           configMap:
             name: flask-config
+      initContainers:
+        - name: init-myservice
+          image: busybox
+          command: ['sh', '-c', 'until nslookup redis-service; do echo waiting for redis-service; sleep 2; done;']
+
