@@ -39,8 +39,15 @@ spec:
     spec:
       containers:
       - name: flask
-        image: quay.io/kubernetes-for-developers/flask:0.3.0
+        image: quay.io/kubernetes-for-developers/flask:0.4.0
         imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "100Mi"
+            cpu: "500m"
+          requests:
+            memory: "100Mi"
+            cpu: "500m"
         ports:
         - containerPort: 5000
         envFrom:
