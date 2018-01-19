@@ -39,7 +39,7 @@ spec:
     spec:
       containers:
       - name: flask
-        image: quay.io/kubernetes-for-developers/flask:0.4.0
+        image: quay.io/kubernetes-for-developers/flask:0.5.0
         imagePullPolicy: Always
         resources:
           limits:
