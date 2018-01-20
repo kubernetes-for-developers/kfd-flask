@@ -3,7 +3,9 @@
 kind: Service
 apiVersion: v1
 metadata:
-    name: flask-service
+  name: flask-service
+  annotations:
+    prometheus.io/scrape: "true"
 spec:
   type: NodePort
   ports:
