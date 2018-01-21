@@ -1,14 +1,34 @@
 #!/usr/bin/env python3
 
 import os
+import time
+
 from configparser import SafeConfigParser
 from pathlib import Path
 
 from flask import Flask
-from flask import render_template
+from flask import render_template, make_response, request
+
+from prometheus_client import Summary, Counter, Histogram
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+
 import redis
 import signal
 import sys
+
+FLASK_REQUEST_LATENCY = Histogram('flask_request_latency_seconds', 'Flask Request Latency',
+				['method', 'endpoint'])
+FLASK_REQUEST_COUNT = Counter('flask_request_count', 'Flask Request Count',
+				['method', 'endpoint', 'http_status'])
+
+def before_request():
+    request.start_time = time.time()
+
+def after_request(response):
+    request_latency = time.time() - request.start_time
+    FLASK_REQUEST_LATENCY.labels(request.method, request.path).observe(request_latency)
+    FLASK_REQUEST_COUNT.labels(request.method, request.path, response.status_code).inc()
+    return response
 
 def sigterm_handler(_signo, _stack_frame):
     sys.exit(0)
@@ -57,8 +77,14 @@ def ready():
     else:
         flask.abort(500)
 
+@app.route('/metrics')
+def metrics():
+    return make_response(generate_latest())
+
 if __name__ == '__main__':
     debug_enable = parser.getboolean('features', 'debug', fallback=False)
     redis_host = parser.get('features', 'db', fallback="localhost")
     redis_store = redis.StrictRedis(host=redis_host, port=6379, db=0)
+    app.before_request(before_request)
+    app.after_request(after_request)
     app.run(debug=debug_enable, host='0.0.0.0')

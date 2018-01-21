@@ -3,7 +3,9 @@
 kind: Service
 apiVersion: v1
 metadata:
-    name: flask-service
+  name: flask-service
+  annotations:
+    prometheus.io/scrape: "true"
 spec:
   type: NodePort
   ports:
@@ -39,8 +41,15 @@ spec:
     spec:
       containers:
       - name: flask
-        image: quay.io/kubernetes-for-developers/flask:0.3.0
+        image: quay.io/kubernetes-for-developers/flask:0.5.0
         imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "40Mi"
+            cpu: "500m"
+          requests:
+            memory: "40Mi"
+            cpu: "500m"
         ports:
         - containerPort: 5000
         envFrom:
