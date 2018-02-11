@@ -8,10 +8,10 @@ from pathlib import Path
 
 from flask import Flask
 from flask import render_template, make_response, request
-
 from prometheus_client import Summary, Counter, Histogram
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
+import requests
 import redis
 import signal
 import sys
@@ -80,6 +80,14 @@ def ready():
 @app.route('/metrics')
 def metrics():
     return make_response(generate_latest())
+
+@app.route('/remote')
+def pull_requests():
+    github_url = "https://api.github.com/repos/opentracing/opentracing-python/pulls"
+    r = requests.get(github_url)
+    json = r.json()
+    pull_request_titles = map(lambda item: item[title], json)
+    return 'PRs: ' + ', '.join(pull_request_titles)
 
 if __name__ == '__main__':
     debug_enable = parser.getboolean('features', 'debug', fallback=False)

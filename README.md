@@ -20,6 +20,8 @@ https://quay.io/repository/kubernetes-for-developers/flask?tab=tags
     docker build -t quay.io/kubernetes-for-developers/flask:0.4.0 .
     git checkout 0.5.0
     docker build -t quay.io/kubernetes-for-developers/flask:0.5.0 .
+    git checkout 0.6.0
+    docker build -t quay.io/kubernetes-for-developers/flask:0.6.0 .
     git checkout master
     docker build -t quay.io/kubernetes-for-developers/flask:latest .
     docker push quay.io/kubernetes-for-developers/flask

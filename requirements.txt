@@ -1,3 +1,5 @@
 Flask==0.12.2
 redis
 prometheus-client
+Flask-Opentracing
+requests
