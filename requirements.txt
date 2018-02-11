@@ -1,5 +1,6 @@
 Flask==0.12.2
 redis
+jaeger-client
 prometheus-client
 Flask-Opentracing
 requests
