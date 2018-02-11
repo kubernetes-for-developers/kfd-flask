@@ -86,7 +86,7 @@ def pull_requests():
     github_url = "https://api.github.com/repos/opentracing/opentracing-python/pulls"
     r = requests.get(github_url)
     json = r.json()
-    pull_request_titles = map(lambda item: item[title], json)
+    pull_request_titles = map(lambda item: item['title'], json)
     return 'PRs: ' + ', '.join(pull_request_titles)
 
 if __name__ == '__main__':
