@@ -12,6 +12,9 @@ from flask import render_template, make_response, request
 from jaeger_client import Config
 from flask_opentracing import FlaskTracer
 
+# https://github.com/uber-common/opentracing-python-instrumentation/
+from opentracing_instrumentation.client_hooks import install_all_patches
+
 from prometheus_client import Summary, Counter, Histogram
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 

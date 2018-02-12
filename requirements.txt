@@ -3,4 +3,5 @@ redis
 jaeger-client
 prometheus-client
 Flask-Opentracing
+opentracing_instrumentation
 requests
