@@ -25,10 +25,15 @@ FLASK_REQUEST_LATENCY = Histogram('flask_request_latency_seconds', 'Flask Reques
 FLASK_REQUEST_COUNT = Counter('flask_request_count', 'Flask Request Count',
 				['method', 'endpoint', 'http_status'])
 
+# defaults to reporting via UDP, port 6831, to localhost
 def initialize_tracer():
     config = Config(
         config={
-            'sampler' :{'type': 'const', 'param': 1}
+            'sampler': {
+                'type': 'const',
+                'param': 1
+            },
+            'logging': True
         },
         service_name='flask-service'
     )
