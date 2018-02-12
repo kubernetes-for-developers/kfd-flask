@@ -63,6 +63,7 @@ if config_file.is_file():
 
 redis_store = None
 app = Flask(__name__)
+flask_tracer = FlaskTracer(initialize_tracer, True, app, ["url_rule"])
 
 @app.route('/')
 def index():
@@ -113,5 +114,4 @@ if __name__ == '__main__':
     redis_store = redis.StrictRedis(host=redis_host, port=6379, db=0)
     app.before_request(before_request)
     app.after_request(after_request)
-    flask_tracer = FlaskTracer(initialize_tracer, True, app)
     app.run(debug=debug_enable, host='0.0.0.0')

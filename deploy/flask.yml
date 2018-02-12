@@ -66,13 +66,13 @@ spec:
             path: /alive
             port: 5000
           initialDelaySeconds: 1
-          periodSeconds: 5
+          periodSeconds: 15
         readinessProbe:
           httpGet:
             path: /ready
             port: 5000
           initialDelaySeconds: 5
-          periodSeconds: 5
+          periodSeconds: 15
       volumes:
         - name: config
           configMap:
