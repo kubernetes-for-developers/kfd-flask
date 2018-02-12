@@ -10,10 +10,11 @@ from flask import Flask
 from flask import render_template, make_response, request
 
 from jaeger_client import Config
-from flask_opentracing import FlaskTracer
 
 # https://github.com/uber-common/opentracing-python-instrumentation/
 from opentracing_instrumentation.client_hooks import install_all_patches
+
+from flask_opentracing import FlaskTracer
 
 from prometheus_client import Summary, Counter, Histogram
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
@@ -105,10 +106,13 @@ def metrics():
 
 @app.route('/remote')
 def pull_requests():
+    parent_span = flask_tracer.get_span()
+    child_span = jaeger_client.start_span("remote request to github", child_of=parent_span)
     github_url = "https://api.github.com/repos/opentracing/opentracing-python/pulls"
     r = requests.get(github_url)
     json = r.json()
     pull_request_titles = map(lambda item: item['title'], json)
+    child_span.finish()	
     return 'PRs: ' + ', '.join(pull_request_titles)
 
 if __name__ == '__main__':
