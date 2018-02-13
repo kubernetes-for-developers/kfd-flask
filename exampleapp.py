@@ -9,11 +9,10 @@ from pathlib import Path
 from flask import Flask
 from flask import render_template, make_response, request
 
+import opentracing
 from jaeger_client import Config
-
 # https://github.com/uber-common/opentracing-python-instrumentation/
-from opentracing_instrumentation.client_hooks import install_all_patches
-
+# from opentracing_instrumentation.client_hooks import install_all_patches
 from flask_opentracing import FlaskTracer
 
 from prometheus_client import Summary, Counter, Histogram
@@ -95,7 +94,11 @@ def alive():
 
 @app.route('/ready')
 def ready():
-    if redis_store.ping():
+    parent_span = flask_tracer.get_span()
+    with opentracing.tracer.start_span('redis-ping', child_of=parent_span) as span:
+        result = redis_store.ping()
+        span.set_tag("redis-ping", result)    
+    if result:
         return "Yes"
     else:
         flask.abort(500)
@@ -107,12 +110,17 @@ def metrics():
 @app.route('/remote')
 def pull_requests():
     parent_span = flask_tracer.get_span()
-    child_span = jaeger_client.start_span("remote request to github", child_of=parent_span)
     github_url = "https://api.github.com/repos/opentracing/opentracing-python/pulls"
-    r = requests.get(github_url)
-    json = r.json()
-    pull_request_titles = map(lambda item: item['title'], json)
-    child_span.finish()	
+    with opentracing.tracer.start_span('github-api', child_of=parent_span) as span:
+        span.set_tag("http.url",github_url)
+        r = requests.get(github_url)
+        span.set_tag("http.status_code", r.status_code)    
+
+    with opentracing.tracer.start_span('parse-json', child_of=parent_span) as span:
+        json = r.json()
+        span.set_tag("pull_requests", len(json))
+        pull_request_titles = map(lambda item: item['title'], json)
+
     return 'PRs: ' + ', '.join(pull_request_titles)
 
 if __name__ == '__main__':
