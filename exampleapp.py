@@ -11,8 +11,6 @@ from flask import render_template, make_response, request
 
 import opentracing
 from jaeger_client import Config
-# https://github.com/uber-common/opentracing-python-instrumentation/
-# from opentracing_instrumentation.client_hooks import install_all_patches
 from flask_opentracing import FlaskTracer
 
 from prometheus_client import Summary, Counter, Histogram
@@ -24,9 +22,9 @@ import signal
 import sys
 
 FLASK_REQUEST_LATENCY = Histogram('flask_request_latency_seconds', 'Flask Request Latency',
-				['method', 'endpoint'])
+        ['method', 'endpoint'])
 FLASK_REQUEST_COUNT = Counter('flask_request_count', 'Flask Request Count',
-				['method', 'endpoint', 'http_status'])
+        ['method', 'endpoint', 'http_status'])
 
 # defaults to reporting via UDP, port 6831, to localhost
 def initialize_tracer():
@@ -97,7 +95,7 @@ def ready():
     parent_span = flask_tracer.get_span()
     with opentracing.tracer.start_span('redis-ping', child_of=parent_span) as span:
         result = redis_store.ping()
-        span.set_tag("redis-ping", result)    
+        span.set_tag("redis-ping", result)
     if result:
         return "Yes"
     else:
@@ -114,7 +112,7 @@ def pull_requests():
     with opentracing.tracer.start_span('github-api', child_of=parent_span) as span:
         span.set_tag("http.url",github_url)
         r = requests.get(github_url)
-        span.set_tag("http.status_code", r.status_code)    
+        span.set_tag("http.status_code", r.status_code)
 
     with opentracing.tracer.start_span('parse-json', child_of=parent_span) as span:
         json = r.json()
