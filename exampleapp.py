@@ -7,19 +7,38 @@ from configparser import SafeConfigParser
 from pathlib import Path
 
 from flask import Flask
-from flask import render_template, make_response, request
+from flask import render_template, make_response, request, abort
+
+import opentracing
+from jaeger_client import Config
+from flask_opentracing import FlaskTracer
 
 from prometheus_client import Summary, Counter, Histogram
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
+import requests
 import redis
 import signal
 import sys
 
 FLASK_REQUEST_LATENCY = Histogram('flask_request_latency_seconds', 'Flask Request Latency',
-				['method', 'endpoint'])
+        ['method', 'endpoint'])
 FLASK_REQUEST_COUNT = Counter('flask_request_count', 'Flask Request Count',
-				['method', 'endpoint', 'http_status'])
+        ['method', 'endpoint', 'http_status'])
+
+# defaults to reporting via UDP, port 6831, to localhost
+def initialize_tracer():
+    config = Config(
+        config={
+            'sampler': {
+                'type': 'const',
+                'param': 1
+            },
+            'logging': True
+        },
+        service_name='flask-service'
+    )
+    return config.initialize_tracer() # also sets opentracing.tracer
 
 def before_request():
     request.start_time = time.time()
@@ -45,6 +64,7 @@ if config_file.is_file():
 
 redis_store = None
 app = Flask(__name__)
+flask_tracer = FlaskTracer(initialize_tracer, True, app, ["url_rule"])
 
 @app.route('/')
 def index():
@@ -72,14 +92,34 @@ def alive():
 
 @app.route('/ready')
 def ready():
-    if redis_store.ping():
+    parent_span = flask_tracer.get_span()
+    with opentracing.tracer.start_span('redis-ping', child_of=parent_span) as span:
+        result = redis_store.ping()
+        span.set_tag("redis-ping", result)
+    if result:
         return "Yes"
     else:
-        flask.abort(500)
+        abort(500)
 
 @app.route('/metrics')
 def metrics():
     return make_response(generate_latest())
+
+@app.route('/remote')
+def pull_requests():
+    parent_span = flask_tracer.get_span()
+    github_url = "https://api.github.com/repos/opentracing/opentracing-python/pulls"
+    with opentracing.tracer.start_span('github-api', child_of=parent_span) as span:
+        span.set_tag("http.url",github_url)
+        r = requests.get(github_url)
+        span.set_tag("http.status_code", r.status_code)
+
+    with opentracing.tracer.start_span('parse-json', child_of=parent_span) as span:
+        json = r.json()
+        span.set_tag("pull_requests", len(json))
+        pull_request_titles = map(lambda item: item['title'], json)
+
+    return 'PRs: ' + ', '.join(pull_request_titles)
 
 if __name__ == '__main__':
     debug_enable = parser.getboolean('features', 'debug', fallback=False)
