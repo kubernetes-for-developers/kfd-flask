@@ -7,7 +7,7 @@ from configparser import SafeConfigParser
 from pathlib import Path
 
 from flask import Flask
-from flask import render_template, make_response, request
+from flask import render_template, make_response, request, abort
 
 import opentracing
 from jaeger_client import Config
@@ -99,7 +99,7 @@ def ready():
     if result:
         return "Yes"
     else:
-        flask.abort(500)
+        abort(500)
 
 @app.route('/metrics')
 def metrics():
