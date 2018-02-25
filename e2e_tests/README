@@ -1,0 +1,12 @@
+# setting up end-to-end testing
+
+Install pytest and related dependencies
+
+    virtualenv .venv
+    source .venv/bin/activate
+    pip3 install -r test-requirements.txt
+
+Run the tests
+
+    pytest
+
