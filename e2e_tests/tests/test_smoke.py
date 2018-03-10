@@ -84,3 +84,18 @@ def test_service_response(kube_v1_client, kubectl_proxy):
     r = requests.get(URI)
     assert r.status_code == 200
 
+@pytest.mark.dependency(depends=["test_deployment_ready"])
+def test_python_client_service_response(kube_v1_client):
+    from pprint import pprint
+    from kubernetes.client.rest import ApiException
+
+    NAMESPACE="default"
+    SERVICE_NAME="flask-service"
+
+    try:
+        api_response = kube_v1_client.proxy_get_namespaced_service(SERVICE_NAME, NAMESPACE)
+        pprint(api_response)
+        api_response = kube_v1_client.proxy_get_namespaced_service_with_path(SERVICE_NAME, NAMESPACE, "/metrics")
+        pprint(api_response)
+    except ApiException as e:
+        print("Exception when calling CoreV1Api->proxy_get_namespaced_service: %s\n" % e)
