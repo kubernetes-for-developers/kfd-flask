@@ -1,8 +1,8 @@
 import kubernetes
 import pytest
-import yaml
 import time
 import subprocess
+import requests
 
 # in a larger example, this section could easily be in conftest.py
 @pytest.fixture
@@ -11,11 +11,11 @@ def kube_v1_client():
     v1 = kubernetes.client.CoreV1Api()
     return v1
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def kubectl_proxy():
     # establish proxy for kubectl communications
-    # https://docs.python.org/2/library/subprocess.html#subprocess-replacements
-    proxy = subprocess.Popen("kubectl proxy", stdout=subprocess.PIPE, shell=True)
+    # https://docs.python.org/3/library/subprocess.html#subprocess-replacements
+    proxy = subprocess.Popen("kubectl proxy &", stdout=subprocess.PIPE, shell=True)
     yield 
     # terminate the proxy
     proxy.kill()
@@ -76,12 +76,11 @@ def test_pods_running(kube_v1_client):
         assert pod.status.phase == "Running"
 
 @pytest.mark.dependency(depends=["test_deployment_ready"])
-def test_contexts(kube_v1_client, kubectl_proxy):
-    # contexts, active_context = kubernetes.config.list_kube_config_contexts()
-    # print("%s\t%s" % (contexts, active_context))
-    # print(kube_v1_client.list_node())
-    # print("-----------------------------------------------------------------")
-    # print(kube_v1_client.list_service_for_all_namespaces())
-    # print(kubernetes.config)
-    print("hi")
+def test_service_response(kube_v1_client, kubectl_proxy):
+    NAMESPACE="default"
+    SERVICE_NAME="flask-service"
+    URI = "http://localhost:8001/api/v1/namespaces/%s/services/%s/proxy/" % (NAMESPACE, SERVICE_NAME)
+    print("requesting %s" % (URI))
+    r = requests.get(URI)
+    assert r.status_code == 200
 
