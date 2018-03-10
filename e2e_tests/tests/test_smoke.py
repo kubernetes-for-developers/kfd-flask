@@ -16,7 +16,7 @@ def kubectl_proxy():
     # establish proxy for kubectl communications
     # https://docs.python.org/3/library/subprocess.html#subprocess-replacements
     proxy = subprocess.Popen("kubectl proxy &", stdout=subprocess.PIPE, shell=True)
-    yield 
+    yield
     # terminate the proxy
     proxy.kill()
 
@@ -51,8 +51,8 @@ def test_deployment_ready(kube_v1_client):
     apps_client = kubernetes.client.AppsV1beta2Api()
     now = time.time()
     while (time.time() < now+TOTAL_TIMEOUT_SECONDS):
-        api_response = apps_client.list_namespaced_deployment("default", 
-            include_uninitialized=True, 
+        api_response = apps_client.list_namespaced_deployment("default",
+            include_uninitialized=True,
             timeout_seconds=REQUEST_TIMEOUT_SECONDS)
         print("name\tavail\tready")
         for i in api_response.items:
@@ -60,7 +60,7 @@ def test_deployment_ready(kube_v1_client):
                 (i.metadata.name, i.status.available_replicas, i.status.ready_replicas))
             if i.metadata.name == 'flask':
                 if i.status and i.status.ready_replicas:
-                    return 
+                    return
         time.sleep(DELAY_BETWEEN_REQUESTS_SECONDS)
     assert False
 
