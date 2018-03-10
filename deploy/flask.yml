@@ -54,7 +54,7 @@ spec:
         - "/go/bin/agent-linux"
         - "--collector.host-port=jaeger-collector:14267"
       - name: flask
-        image: quay.io/kubernetes-for-developers/flask:0.6.0
+        image: quay.io/kubernetes-for-developers/flask:0.7.0
         imagePullPolicy: Always
         resources:
           limits:
@@ -95,4 +95,4 @@ spec:
       initContainers:
         - name: init-myservice
           image: busybox
-          command: ['sh', '-c', 'until nslookup redis-service; do echo waiting for redis-service; sleep 2; done;']      
+          command: ['sh', '-c', 'until nslookup redis-service; do echo waiting for redis-service; sleep 2; done;']
