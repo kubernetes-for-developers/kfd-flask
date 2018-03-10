@@ -1,12 +1,19 @@
 # setting up end-to-end testing
 
-Install pytest and related dependencies
+These tests assume you have access to a kubernetes cluster previously
+arranged and available through kubectl commands. You can use the command
+
+    kubectl version
+
+to verify you can see a remote system
+
+## Install pytest and related dependencies
 
     virtualenv .venv
     source .venv/bin/activate
     pip3 install -r test-requirements.txt
 
-Run the tests
+ ## Run the tests
 
     pytest
 

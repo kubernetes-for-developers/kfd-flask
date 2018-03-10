@@ -66,14 +66,19 @@ def test_deployment_ready(kube_v1_client):
 
 @pytest.mark.dependency(depends=["test_deployment_ready"])
 def test_pods_running(kube_v1_client):
-    pod_list = kube_v1_client.list_namespaced_pod("default")
-    print("name\tphase\tcondition\tstatus")
-    for pod in pod_list.items:
-        for condition in pod.status.conditions:
-            print("%s\t%s\t%s\t%s" % (pod.metadata.name, pod.status.phase, condition.type, condition.status))
-            if condition.type == 'Ready':
-                assert condition.status == 'True'
-        assert pod.status.phase == "Running"
+    TOTAL_TIMEOUT_SECONDS = 300
+    DELAY_BETWEEN_REQUESTS_SECONDS = 5
+    now = time.time()
+    while (time.time() < now+TOTAL_TIMEOUT_SECONDS):
+        pod_list = kube_v1_client.list_namespaced_pod("default")
+        print("name\tphase\tcondition\tstatus")
+        for pod in pod_list.items:
+            for condition in pod.status.conditions:
+                print("%s\t%s\t%s\t%s" % (pod.metadata.name, pod.status.phase, condition.type, condition.status))
+                if condition.type == 'Ready' and condition.status == 'True':
+                    return
+        time.sleep(DELAY_BETWEEN_REQUESTS_SECONDS)
+    assert False
 
 @pytest.mark.dependency(depends=["test_deployment_ready"])
 def test_service_response(kube_v1_client, kubectl_proxy):
