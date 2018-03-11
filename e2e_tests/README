@@ -22,3 +22,6 @@ to verify you can see a remote system
 
     # show all standard output captured from the tests during execution
     pytest -rapP
+
+    # run the rests and general JUnit XML result file
+    pytest --junitxml=results.xml
