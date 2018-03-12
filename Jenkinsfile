@@ -4,8 +4,7 @@
 
 def label = "worker-${UUID.randomUUID().toString()}"
 def imageBase = "quay.io/kubernetes-for-developers/flask"
-podTemplate(label: label
-  containers: [
+podTemplate(label: label, containers: [
     containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl:v1.8.8', command: 'cat', ttyEnabled: true),
     containerTemplate(name: 'docker', image: 'docker:1.11', ttyEnabled: true, command: 'cat')
   ],
