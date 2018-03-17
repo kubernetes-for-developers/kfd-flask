@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache
 
 # C extensions
 *.so
@@ -100,3 +101,4 @@ ENV/
 # mypy
 .mypy_cache/
 .vscode
+results.xml
